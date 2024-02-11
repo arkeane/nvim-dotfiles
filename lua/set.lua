@@ -8,8 +8,8 @@ vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.modelines = 0
 vim.opt.showcmd = true
-vim.opt.encoding = 'utf-8'
-vim.opt.syntax = 'on'
+vim.opt.encoding = "utf-8"
+vim.opt.syntax = "on"
 
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4

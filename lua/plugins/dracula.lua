@@ -1,3 +1,3 @@
-local Plugin = {'Mofiqul/dracula.nvim'}
+local Plugin = { "Mofiqul/dracula.nvim" }
 
 return Plugin

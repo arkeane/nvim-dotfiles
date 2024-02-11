@@ -1,5 +1,5 @@
-local Plugin = {'mbbill/undotree'}
+local Plugin = { "mbbill/undotree" }
 
-Plugin.event = 'VeryLazy'
+Plugin.event = "VeryLazy"
 
 return Plugin
