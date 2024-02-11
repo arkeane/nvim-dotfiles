@@ -5,7 +5,7 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 	desc = "Automatically format lua files after saving",
 	callback = function()
 		local fileName = vim.api.nvim_buf_get_name(0)
-		vim.cmd(":!stylua " .. fileName)
+		vim.cmd(":silent !stylua " .. fileName)
 	end,
 	group = autocmd_group,
 })
