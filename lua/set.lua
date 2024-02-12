@@ -29,7 +29,7 @@ vim.opt.showmatch = true
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.local/share/nvim"
+vim.opt.undodir = os.getenv("HOME") .. "/.local/share/nvim/undofiles"
 vim.opt.undofile = true
 
 vim.opt.signcolumn = "yes"
