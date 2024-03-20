@@ -7,7 +7,7 @@ Plugin.config = function()
 	local configs = require("nvim-treesitter.configs")
 
 	configs.setup({
-		ensure_installed = { "c", "lua", "rust" },
+		ensure_installed = { "c", "lua", "rust", "go" },
 		sync_install = false,
 		highlight = { enable = true },
 		indent = { enable = true },
