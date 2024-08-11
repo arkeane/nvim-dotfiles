@@ -1,5 +1,7 @@
 local Plugin = { "ThePrimeagen/harpoon" }
+
 Plugin.branch = "harpoon2"
+
 Plugin.dependencies = {
 	"nvim-lua/plenary.nvim",
 }
