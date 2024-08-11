@@ -6,6 +6,9 @@ Plugin.dependencies = {
 	"nvim-lua/plenary.nvim",
 }
 
+-- Lazy load the plugin when any of the key mappings or commands are used
+Plugin.keys = { "<leader>a", "<C-e>", "<C-h>", "<C-t>", "<C-n>", "<C-s>", "<C-S-P>", "<C-S-N>" }
+
 Plugin.config = function()
 	local harpoon = require("harpoon")
 	harpoon:setup({})
