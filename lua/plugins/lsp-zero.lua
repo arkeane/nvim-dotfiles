@@ -24,6 +24,7 @@ Plugin.config = function()
 	require("mason-lspconfig").setup({
 		ensure_installed = {
 			"lua_ls",
+            "pyright"
 		},
 		handlers = {
 			function(server_name)
@@ -45,6 +46,13 @@ Plugin.config = function()
 					},
 				})
 			end,
+
+            ["pyright"] = function ()
+                local lspconfig = require("lspconfig")
+                lspconfig.pyright.setup({
+                    capabilities = capabilities
+                })
+            end
 		},
 	})
 
