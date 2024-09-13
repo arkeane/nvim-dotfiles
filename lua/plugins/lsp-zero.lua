@@ -52,6 +52,75 @@ Plugin.config = function()
                 lspconfig.pyright.setup({
                     capabilities = capabilities
                 })
+            end,
+
+            ["rust_analyzer"] = function()
+                local lspconfig = require("lspconfig")
+                local on_attach = function(client, bufnr)
+                    -- Enable completion triggered by <c-x><c-o>
+                    vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+                    -- Key mappings
+                    local opts = { noremap=true, silent=true, buffer=bufnr }
+                    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+                    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+                    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+                    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+                    vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
+                    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+
+                    -- Format on save
+                    if client.server_capabilities.documentFormattingProvider then
+                        vim.api.nvim_create_autocmd("BufWritePre", {
+                            group = vim.api.nvim_create_augroup("Format", { clear = true }),
+                            buffer = bufnr,
+                            callback = function() vim.lsp.buf.format() end
+                        })
+                    end
+                end
+
+                lspconfig.rust_analyzer.setup({
+                    capabilities = capabilities,
+                    on_attach = on_attach,
+                    settings = {
+                        ["rust-analyzer"] = {
+                            assist = {
+                                importGranularity = "module",
+                                importPrefix = "self",
+                            },
+                            cargo = {
+                                loadOutDirsFromCheck = true,
+                                buildScripts = {
+                                    enable = true,
+                                },
+                            },
+                            procMacro = {
+                                enable = true
+                            },
+                            checkOnSave = {
+                                command = "clippy"
+                            },
+                            inlayHints = {
+                                lifetimeElisionHints = {
+                                    enable = true,
+                                    useParameterNames = true
+                                },
+                            },
+                            diagnostics = {
+                                enable = true,
+                                experimental = {
+                                    enable = true,
+                                },
+                            },
+                        }
+                    },
+                    flags = {
+                        debounce_text_changes = 150,
+                    },
+                })
             end
 		},
 	})
