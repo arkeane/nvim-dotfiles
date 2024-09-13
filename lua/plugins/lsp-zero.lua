@@ -23,8 +23,7 @@ Plugin.config = function()
 	require("mason").setup()
 	require("mason-lspconfig").setup({
 		ensure_installed = {
-			"lua_ls",
-            "pyright"
+			"lua_ls"
 		},
 		handlers = {
 			function(server_name)
