@@ -50,6 +50,7 @@ Plugin.config = function()
         end
     end
 
+    ---@diagnostic disable [missing-fields]
     require("mason-lspconfig").setup({
         ensure_installed = {
             "lua_ls",
@@ -120,6 +121,13 @@ Plugin.config = function()
                     flags = {
                         debounce_text_changes = 150,
                     },
+                })
+            end,
+
+            ["gopls"] = function()
+                require("lspconfig").gopls.setup({
+                    capabilities = capabilities,
+                    on_attach = on_attach,
                 })
             end
         },
