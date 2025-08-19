@@ -69,10 +69,14 @@ Plugin.config = function()
                     on_attach = on_attach,
                     settings = {
                         Lua = {
+                            runtime = {
+                                version = "LuaJIT",
+                            },
                             diagnostics = {
                                 globals = { "vim", "it", "describe", "before_each", "after_each" },
                             },
                             workspace = {
+                                library = vim.api.nvim_get_runtime_file("", true),
                                 checkThirdParty = false,
                             },
                         },
@@ -127,8 +131,27 @@ Plugin.config = function()
                     capabilities = capabilities,
                     on_attach = on_attach,
                 })
+            end,
+
+            ["clangd"] = function ()
+                require("lspconfig").clangd.setup({
+                    on_attach = lsp_attach,
+                    capabilities = capabilities,
+                    cmd = { "/usr/bin/clangd" },
+                    filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+                    root_dir = lspconfig.util.root_pattern(
+                        '.clangd',
+                        '.clang-tidy',
+                        '.clang-format',
+                        'compile_commands.json',
+                        'compile_flags.txt',
+                        'configure.ac',
+                        '.git'
+                    ),
+                    single_file_support = true,
+                })
             end
-        },
+        }
     })
 
     local cmp_select = { behavior = cmp.SelectBehavior.Select }
