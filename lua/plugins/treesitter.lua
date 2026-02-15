@@ -9,12 +9,20 @@ Plugin.dependencies = {
     "JoosepAlviste/nvim-ts-context-commentstring",
 }
 
-Plugin.config = function()
-    -- Set up ts_context_commentstring
-    require('ts_context_commentstring').setup {}
+Plugin.init = function()
+    -- Set this before treesitter loads to skip the backward compatibility module
     vim.g.skip_ts_context_commentstring_module = true
+end
 
-    require("nvim-treesitter.configs").setup({
+Plugin.config = function()
+    -- 1. Setup Context Commentstring
+    require('ts_context_commentstring').setup {}
+
+    -- 2. Setup Autotag (New method)
+    require('nvim-ts-autotag').setup {}
+
+    -- 3. Setup Treesitter
+    require("nvim-treesitter.config").setup({
         ensure_installed = {
             "lua", "vim", "vimdoc", "query",           -- Neovim-related
             "rust", "python", "c", "cpp",              -- Common programming languages
@@ -73,9 +81,7 @@ Plugin.config = function()
                 },
             },
         },
-        autotag = {
-            enable = true,
-        },
+        -- autotag = { enable = true } <-- Removed, handled by its own setup above
     })
 end
 
