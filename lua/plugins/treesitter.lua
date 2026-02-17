@@ -22,7 +22,7 @@ Plugin.config = function()
     require('nvim-ts-autotag').setup {}
 
     -- 3. Setup Treesitter
-    require("nvim-treesitter.config").setup({
+    require("nvim-treesitter.configs").setup({
         ensure_installed = {
             "lua", "vim", "vimdoc", "query",           -- Neovim-related
             "rust", "python", "c", "cpp",              -- Common programming languages
