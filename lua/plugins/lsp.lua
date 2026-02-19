@@ -11,7 +11,16 @@ Plugin.dependencies = {
     "L3MON4D3/LuaSnip",
     "saadparwaiz1/cmp_luasnip",
     "j-hui/fidget.nvim",
-    "folke/neodev.nvim", -- Add this for better Lua development
+    {
+        "folke/lazydev.nvim",
+        ft = "lua",
+        opts = {
+            library = {
+                { path = "luvit-meta/library", words = { "vim%.uv" } },
+            },
+        },
+    },
+    { "Bilal2453/luvit-meta", lazy = true },
 }
 
 Plugin.config = function()
@@ -22,13 +31,10 @@ Plugin.config = function()
 
     require("fidget").setup({})
     require("mason").setup()
-    require("neodev").setup() -- Setup neodev for better Lua development
 
     local on_attach = function(client, bufnr)
-        -- Enable completion triggered by <c-x><c-o>
         vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
-        -- Key mappings
         local opts = { noremap = true, silent = true, buffer = bufnr }
         vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
@@ -39,22 +45,11 @@ Plugin.config = function()
         vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
         vim.keymap.set('n', '<space>ca', vim.lsp.buf.code_action, opts)
         vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-
-        -- Format on save
-        if client.server_capabilities.documentFormattingProvider then
-            vim.api.nvim_create_autocmd("BufWritePre", {
-                group = vim.api.nvim_create_augroup("Format", { clear = true }),
-                buffer = bufnr,
-                callback = function() vim.lsp.buf.format() end
-            })
-        end
     end
 
     ---@diagnostic disable [missing-fields]
     require("mason-lspconfig").setup({
-        ensure_installed = {
-            "lua_ls",
-        },
+        ensure_installed = { "lua_ls", "rust_analyzer", "clangd" },
         handlers = {
             function(server_name)
                 require("lspconfig")[server_name].setup({
@@ -69,16 +64,7 @@ Plugin.config = function()
                     on_attach = on_attach,
                     settings = {
                         Lua = {
-                            runtime = {
-                                version = "LuaJIT",
-                            },
-                            diagnostics = {
-                                globals = { "vim", "it", "describe", "before_each", "after_each" },
-                            },
-                            workspace = {
-                                library = vim.api.nvim_get_runtime_file("", true),
-                                checkThirdParty = false,
-                            },
+                            diagnostics = { globals = { "vim", "it", "describe", "before_each", "after_each" } },
                         },
                     },
                 })
@@ -90,63 +76,26 @@ Plugin.config = function()
                     on_attach = on_attach,
                     settings = {
                         ["rust-analyzer"] = {
-                            assist = {
-                                importGranularity = "module",
-                                importPrefix = "self",
-                            },
-                            cargo = {
-                                loadOutDirsFromCheck = true,
-                                buildScripts = {
-                                    enable = true,
-                                },
-                            },
-                            procMacro = {
-                                enable = true
-                            },
-                            checkOnSave = {
-                                command = "clippy"
-                            },
-                            inlayHints = {
-                                lifetimeElisionHints = {
-                                    enable = true,
-                                    useParameterNames = true
-                                },
-                            },
-                            diagnostics = {
-                                enable = true,
-                                experimental = {
-                                    enable = true,
-                                },
-                            },
+                            assist = { importGranularity = "module", importPrefix = "self" },
+                            cargo = { loadOutDirsFromCheck = true, buildScripts = { enable = true } },
+                            procMacro = { enable = true },
+                            checkOnSave = { command = "clippy" },
+                            inlayHints = { lifetimeElisionHints = { enable = true, useParameterNames = true } },
+                            diagnostics = { enable = true, experimental = { enable = true } },
                         }
                     },
-                    flags = {
-                        debounce_text_changes = 150,
-                    },
                 })
             end,
 
-            ["gopls"] = function()
-                require("lspconfig").gopls.setup({
-                    capabilities = capabilities,
-                    on_attach = on_attach,
-                })
-            end,
-
-            ["clangd"] = function ()
+            ["clangd"] = function()
                 require("lspconfig").clangd.setup({
-                    on_attach = lsp_attach,
+                    on_attach = on_attach,
                     capabilities = capabilities,
-                    cmd = { "/usr/bin/clangd" },
+                    cmd = { "clangd" },
                     filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-                    root_dir = lspconfig.util.root_pattern(
-                        '.clangd',
-                        '.clang-tidy',
-                        '.clang-format',
-                        'compile_commands.json',
-                        'compile_flags.txt',
-                        'configure.ac',
-                        '.git'
+                    root_dir = require("lspconfig.util").root_pattern(
+                        '.clangd', '.clang-tidy', '.clang-format', 'compile_commands.json',
+                        'compile_flags.txt', 'configure.ac', '.git'
                     ),
                     single_file_support = true,
                 })
@@ -157,11 +106,7 @@ Plugin.config = function()
     local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
     cmp.setup({
-        snippet = {
-            expand = function(args)
-                require("luasnip").lsp_expand(args.body)
-            end,
-        },
+        snippet = { expand = function(args) require("luasnip").lsp_expand(args.body) end },
         mapping = cmp.mapping.preset.insert({
             ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
             ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
@@ -169,6 +114,7 @@ Plugin.config = function()
             ['<C-Space>'] = cmp.mapping.complete(),
         }),
         sources = cmp.config.sources({
+            { name = "lazydev", group_index = 0 },
             { name = 'nvim_lsp' },
             { name = 'luasnip' },
             { name = 'buffer' },
