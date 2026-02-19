@@ -1,13 +1,13 @@
-local Plugin = { 
+local Plugin = {
     "nvim-treesitter/nvim-treesitter",
-    branch = "master"
+    branch = "main",
+    build = ":TSUpdate"
 }
 
 Plugin.event = { "BufReadPost", "BufNewFile" }
-Plugin.build = ":TSUpdate"
 
 Plugin.dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects",
+    { "nvim-treesitter/nvim-treesitter-textobjects", branch = "main" },
     "windwp/nvim-ts-autotag",
     "JoosepAlviste/nvim-ts-context-commentstring",
 }
@@ -19,64 +19,55 @@ end
 Plugin.config = function()
     require('ts_context_commentstring').setup {}
     require('nvim-ts-autotag').setup {}
-    require("nvim-treesitter.configs").setup({
-        ensure_installed = {
-            "lua", "vim", "vimdoc", "query",           -- Neovim-related
-            "rust", "python", "c", "cpp",              -- Common programming languages
-            "javascript", "typescript", "html", "css", -- Web development
-            "json", "yaml", "toml",                    -- Data formats
-            "markdown", "markdown_inline",             -- Documentation
-            "regex",                                   -- Useful for many languages
-        },
-        sync_install = false,
-        auto_install = true,
-        ignore_install = {},
-        modules = {},
-        highlight = {
+
+    require("nvim-treesitter").install({
+        "lua", "vim", "vimdoc", "query",
+        "rust", "python", "c", "cpp",
+        "javascript", "typescript", "html", "css",
+        "json", "yaml", "toml",
+        "markdown", "markdown_inline",
+        "regex",
+    })
+
+    vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('TreesitterSetup', { clear = true }),
+        callback = function(event)
+            local lang = vim.treesitter.language.get_lang(event.match) or event.match
+
+            if vim.treesitter.query.get(lang, "highlights") then
+                vim.treesitter.start(event.buf, lang)
+            end
+
+            if vim.treesitter.query.get(lang, "indents") then
+                vim.bo[event.buf].indentexpr = "v:lua.require('nvim-treesitter').indentexpr()"
+            end
+
+            if vim.treesitter.query.get(lang, "folds") then
+                vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+                vim.wo.foldmethod = "expr"
+                vim.wo.foldenable = false
+            end
+        end,
+    })
+
+    require("nvim-treesitter-textobjects").setup({
+        select = {
             enable = true,
-            additional_vim_regex_highlighting = false,
-        },
-        indent = { enable = true },
-        incremental_selection = {
-            enable = true,
+            lookahead = true,
             keymaps = {
-                init_selection = "<C-space>",
-                node_incremental = "<C-space>",
-                scope_incremental = "<C-s>",
-                node_decremental = "<C-backspace>",
+                ["af"] = "@function.outer",
+                ["if"] = "@function.inner",
+                ["ac"] = "@class.outer",
+                ["ic"] = "@class.inner",
             },
         },
-        textobjects = {
-            select = {
-                enable = true,
-                lookahead = true,
-                keymaps = {
-                    ["af"] = "@function.outer",
-                    ["if"] = "@function.inner",
-                    ["ac"] = "@class.outer",
-                    ["ic"] = "@class.inner",
-                },
-            },
-            move = {
-                enable = true,
-                set_jumps = true,
-                goto_next_start = {
-                    ["]m"] = "@function.outer",
-                    ["]]"] = "@class.outer",
-                },
-                goto_next_end = {
-                    ["]M"] = "@function.outer",
-                    ["]["] = "@class.outer",
-                },
-                goto_previous_start = {
-                    ["[m"] = "@function.outer",
-                    ["[["] = "@class.outer",
-                },
-                goto_previous_end = {
-                    ["[M"] = "@function.outer",
-                    ["[]"] = "@class.outer",
-                },
-            },
+        move = {
+            enable = true,
+            set_jumps = true,
+            goto_next_start = { ["]m"] = "@function.outer", ["]]"] = "@class.outer" },
+            goto_next_end = { ["]M"] = "@function.outer", ["]["] = "@class.outer" },
+            goto_previous_start = { ["[m"] = "@function.outer", ["[["] = "@class.outer" },
+            goto_previous_end = { ["[M"] = "@function.outer", ["[]"] = "@class.outer" },
         },
     })
 end
