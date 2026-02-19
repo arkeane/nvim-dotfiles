@@ -1,4 +1,7 @@
-local Plugin = { "nvim-treesitter/nvim-treesitter" }
+local Plugin = { 
+    "nvim-treesitter/nvim-treesitter",
+    branch = "master"
+}
 
 Plugin.event = { "BufReadPost", "BufNewFile" }
 Plugin.build = ":TSUpdate"
@@ -10,18 +13,12 @@ Plugin.dependencies = {
 }
 
 Plugin.init = function()
-    -- Set this before treesitter loads to skip the backward compatibility module
     vim.g.skip_ts_context_commentstring_module = true
 end
 
 Plugin.config = function()
-    -- 1. Setup Context Commentstring
     require('ts_context_commentstring').setup {}
-
-    -- 2. Setup Autotag (New method)
     require('nvim-ts-autotag').setup {}
-
-    -- 3. Setup Treesitter
     require("nvim-treesitter.configs").setup({
         ensure_installed = {
             "lua", "vim", "vimdoc", "query",           -- Neovim-related
@@ -81,7 +78,6 @@ Plugin.config = function()
                 },
             },
         },
-        -- autotag = { enable = true } <-- Removed, handled by its own setup above
     })
 end
 
